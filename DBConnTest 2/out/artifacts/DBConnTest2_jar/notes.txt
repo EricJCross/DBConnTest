@@ -1,0 +1,2 @@
+cd c:\_install\DBConnTest2
+C:\SterlingCommerce\java\IJ45182_IJ45659_IJ46192-ibm-java-sdk-80-win-x86_64\sdk\bin\java -jar DBConnTest.jar
