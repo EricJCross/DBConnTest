@@ -1,4 +1,5 @@
-package ibm;
+
+package com.coe.DBConn;
 
 
 import java.io.BufferedReader;
@@ -8,6 +9,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -16,14 +18,15 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
 import java.io.PrintWriter;
-import java.io.File;
-
 
 
 
 
 public class DBConnTestV2 {
-    String Propertyfile = "database.properties";
+    private BufferedReader Read_Buffer = new BufferedReader(new InputStreamReader(System.in));
+    private Properties DB_ConnTest_Properties = new Properties();
+    String Propertyfile = "database.properties";  // This is the default property filename.  Will also be set via a commandline argument
+
 
     Boolean Need_New_Properties = false;
     String DB_Vendor = null;
@@ -45,16 +48,68 @@ public class DBConnTestV2 {
 
 
     //---------------------------------------------------------------------------------------------------------------#
+    // Function: DBConnTestV2 (constructor)
+    // Description: Allow overriding the default property file via a command‐line argument.
+    // Parameter: propertyFilePath - optional path to the .properties file; if null or empty, use default.
+    // Returns: none
+    //---------------------------------------------------------------------------------------------------------------#
+    public DBConnTestV2( String propertyFilePath ) {
+        if (propertyFilePath != null && !propertyFilePath.trim().isEmpty() ) {
+            this.Propertyfile = propertyFilePath;
+        } // else keep the existing default "database.properties"
+    
+        // ensure the Properties object is always initialized
+        this.DB_ConnTest_Properties = new Properties();
+    }
+
+
+    //---------------------------------------------------------------------------------------------------------------#
     // Function: main
     // Description: This is the entry point of the program. It creates an instance of DBConnTestV2 and calls its
     // start method.
     //---------------------------------------------------------------------------------------------------------------#
-    public static void main(final String[] array) {
-        DBConnTestV2 DBConnectionTest = new DBConnTestV2();
-        DBConnectionTest.start();
+    public static void main(final String[] args ) {
+        System.out.println("\nDBConnTest - Database Connectivity Test");
+        System.out.println("");
+        // Optional help flag
+        if ( args.length > 0 && 
+                ( 
+                    args[0].equals( "-h" ) || 
+                    args[0].equals( "--help" ) || 
+                    args[0].contains("?" )
+                ) 
+            ) {
+            System.out.println("\nHelp:");
+            System.out.println("\tIf you omit the property file path, it will look for 'database.properties' next to the JAR.");
+            System.out.println("\tIf no property file is found, a default 'database.properties' will be created for you to fill in.");
+            System.out.println("\nUsage:");
+            System.out.println("\tjava -jar DBConnTestV2");
+            System.out.println("\tjava -jar DBConnTestV2 [path/to/database.properties]");
+            return;
+        }
+
+        // If user supplied a file path, use it; otherwise pass null to use the default
+        String propertyFilePath;
+        if ( args.length > 0 ) {
+            propertyFilePath = args[0]; // use the first argument
+        }
+        else {
+            propertyFilePath = null; // no argument, will default to database.properties
+        }
+
+        //DBConnTestV2 DBConnectionTest = new DBConnTestV2();
+        DBConnTestV2 DBConnectionTest = new DBConnTestV2( propertyFilePath );
+        //DBConnectionTest.start();
+        
+        try {
+            DBConnectionTest.start();
+        } catch ( Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
+    
     //---------------------------------------------------------------------------------------------------------------#
     // Function: start
     // Description: This method initiates the database connectivity test. It reads properties from a configuration file
@@ -62,18 +117,14 @@ public class DBConnTestV2 {
     //              It then validates the connection and executes default or custom queries.
     //---------------------------------------------------------------------------------------------------------------#
     public void start() {
-        final Properties properties = new Properties();
         FileInputStream inStream = null;
-        String name = null;
-        String str = null;
-        System.out.println("\nDBConnTest - Database Connectivity Test");
-        System.out.println("");
         System.out.println("\tFirst checking for " + this.Propertyfile);
 
         try {
             inStream = new FileInputStream(this.Propertyfile);
             System.out.println("\t" + this.Propertyfile + " found. Reading properties\n\n");
-            properties.load(inStream);
+            //properties.load(inStream);
+            Load_Or_Prompt_Properties();
         } catch (Exception ex5) {
             System.out.println("\t" + this.Propertyfile + " not found. Switching to interactive mode \n\n");
             this.Need_New_Properties = true;
@@ -81,18 +132,18 @@ public class DBConnTestV2 {
         }
 
 
-        this.DB_Vendor = properties.getProperty("DB_VENDOR");
-        this.DB_Host = properties.getProperty("DB_HOST");
-        this.DB_Port = properties.getProperty("DB_PORT");
-        this.DB_Data = properties.getProperty("DB_DATA");
-        this.DB_User = properties.getProperty("DB_USER");
-        this.DB_Password = properties.getProperty("DB_PASS");
-        this.DB_Driver_Path = properties.getProperty("DRIVER_PATH");
-        this.TrustStore_Path = properties.getProperty("TRUSTSTORE_PATH");
-        this.TrustStore_Password = properties.getProperty("TRUSTSTORE_PASSWORD");
-        this.SSLTLS = properties.getProperty("SSLTLS");
-        this.J2SSE_OVERRIDE_TLS = properties.getProperty("J2SSE_OVERRIDE_TLS");
-        this.Oracle_Service_Name = properties.getProperty("Oracle_Service_Name");
+        this.DB_Vendor = DB_ConnTest_Properties.getProperty("DB_VENDOR");
+        this.DB_Host = DB_ConnTest_Properties.getProperty("DB_HOST");
+        this.DB_Port = DB_ConnTest_Properties.getProperty("DB_PORT");
+        this.DB_Data = DB_ConnTest_Properties.getProperty("DB_DATA");
+        this.DB_User = DB_ConnTest_Properties.getProperty("DB_USER");
+        this.DB_Password = DB_ConnTest_Properties.getProperty("DB_PASS");
+        this.DB_Driver_Path = DB_ConnTest_Properties.getProperty("DRIVER_PATH");
+        this.TrustStore_Path = DB_ConnTest_Properties.getProperty("TRUSTSTORE_PATH");
+        this.TrustStore_Password = DB_ConnTest_Properties.getProperty("TRUSTSTORE_PASSWORD");
+        this.SSLTLS = DB_ConnTest_Properties.getProperty("SSLTLS");
+        this.J2SSE_OVERRIDE_TLS = DB_ConnTest_Properties.getProperty("J2SSE_OVERRIDE_TLS");
+        this.Oracle_Service_Name = DB_ConnTest_Properties.getProperty("Oracle_Service_Name");
 
 
         try {
@@ -246,15 +297,17 @@ public class DBConnTestV2 {
             }
 
             System.out.println("\n\tConnection successful. \n");
-            System.out.print("Run default query? (y/n) ");
-            String User_Answer = ReadString();
-            if (User_Answer.equals("y") || User_Answer.equals("y") || User_Answer.equals("Yes") || User_Answer.equals("YES")) {
-                siVersion();
-            }
+            //System.out.print("Run default query? (y/n) ");
+            //String User_Answer = ReadString();
+            //if (User_Answer.equals("y") || User_Answer.equals("y") || User_Answer.equals("Yes") || User_Answer.equals("YES")) {
+                //siVersion();
+            Test_Connection_Metadata();
+            Test_Simple_Date_Query();
+            //}
 
             System.out.println();
             System.out.print("Run custom query? (y/n) ");
-            User_Answer = ReadString();
+            String User_Answer = ReadString();
             if (User_Answer.equals("n") || User_Answer.equals("N") || User_Answer.equals("No") || User_Answer.equals("NO")) {
                 System.out.println("'No' entered.  Exiting");
                 return;
@@ -274,10 +327,28 @@ public class DBConnTestV2 {
             if ( this.Need_New_Properties ) {
                 this.Create_Example_Properties_File();
             }
-            System.out.println("\nAll done\n\n");
+            System.out.println("\nConnectivity Test Completed\n\n");
         }
 
     }
+
+    //---------------------------------------------------------------------------------------------------------------#  
+    // Function: loadOrPromptProperties  
+    // Description: Load from disk if available; otherwise prompt interactively and set Need_New_Properties.  
+    //---------------------------------------------------------------------------------------------------------------#  
+    private void Load_Or_Prompt_Properties() throws IOException {
+        try (FileInputStream fis = new FileInputStream( this.Propertyfile ) ) {
+            this.DB_ConnTest_Properties.load( fis );
+            System.out.println("Loaded properties from " + this.Propertyfile );
+        } catch ( Exception e ) {
+            System.out.println( "Error loading properties file " + this.Propertyfile );
+            //e.printStackTrace();
+            System.out.println( "" + e.getMessage() );
+            Need_New_Properties = true;
+        }
+        
+    }
+
 
     //---------------------------------------------------------------------------------------------------------------#
     // Function: prompt
@@ -289,7 +360,7 @@ public class DBConnTestV2 {
     // Returns:
     //   - String: The value entered by the user.
     //---------------------------------------------------------------------------------------------------------------#
-    public static String prompt(String Variable_Value, String Prompt) throws Exception {
+    public String prompt(String Variable_Value, String Prompt) throws Exception {
         while (Variable_Value == null || Variable_Value.length() == 0) {
             System.out.print(" " + Prompt + ": ");
             Variable_Value = ReadString();
@@ -370,8 +441,8 @@ public class DBConnTestV2 {
     // Returns:
     //   - String: The string input by the user.
     //---------------------------------------------------------------------------------------------------------------#
-    public static String ReadString() {
-        BufferedReader Read_Buffer = new BufferedReader(new InputStreamReader(System.in));
+    public String ReadString() {
+        //BufferedReader Read_Buffer = new BufferedReader(new InputStreamReader(System.in));
         String Line = null;
 
         try {
@@ -383,6 +454,56 @@ public class DBConnTestV2 {
         return Line;
     }
 
+
+    //---------------------------------------------------------------------------------------------------------------#
+    // Function: Test_Connection_Metadata
+    // Description: Uses JDBC metadata to print the product name and version.
+    // Throws: SQLException if something goes wrong.
+    //---------------------------------------------------------------------------------------------------------------#
+    private void Test_Connection_Metadata() throws SQLException {
+        DatabaseMetaData meta = DB_Connection.getMetaData();
+        String productName    = meta.getDatabaseProductName();
+        String productVersion = meta.getDatabaseProductVersion();
+        // collapse any newlines into a single space
+        productName = productName.replaceAll("\\r?\\n", " ");
+        productVersion = productVersion.replaceAll("\\r?\\n", " ");
+        System.out.printf("Successfully Connected to:\n\t%s\n\t%s\n", productName, productVersion );
+    }
+
+    //---------------------------------------------------------------------------------------------------------------#
+    // Function: Test_Simple_Date_Query
+    // Description: Runs a tiny date query in a vendor‐specific way to retrieve the current date/time.
+    // Throws: SQLException if something goes wrong.
+    //---------------------------------------------------------------------------------------------------------------#
+    private void Test_Simple_Date_Query() throws SQLException {
+        String dateSql;
+        switch (DB_Vendor) {
+        case "Oracle":
+            // Oracle: SYSDATE returns current date+time
+            dateSql = "SELECT SYSDATE FROM DUAL";
+            break;
+        case "DB2":
+            // DB2: CURRENT TIMESTAMP returns date+time
+            dateSql = "SELECT CURRENT TIMESTAMP FROM SYSIBM.SYSDUMMY1";
+            break;
+        case "MSSQL":
+            // SQL Server: GETDATE() returns date+time
+            dateSql = "SELECT GETDATE()";
+            break;
+        default:
+            // ANSI SQL: CURRENT_TIMESTAMP should work on most modern databases
+            dateSql = "SELECT CURRENT_TIMESTAMP";
+            break;
+        }
+
+        try (Statement stmt = DB_Connection.createStatement(); ResultSet rs = stmt.executeQuery(dateSql)) {
+            if (rs.next()) {
+                // Use getTimestamp to cover both date and time
+                java.sql.Timestamp now = rs.getTimestamp(1);
+                System.out.println( "\tDatabase Current Date/Time: " + now );
+            }
+        }
+    }
 
     //---------------------------------------------------------------------------------------------------------------#
     // Function: createExamplePropertiesFile

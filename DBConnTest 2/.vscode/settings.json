@@ -1,0 +1,38 @@
+{
+    "java.configuration.runtimes": [
+        {
+            "name": "JavaSE-1.8",
+            "path": "C:\\Program Files\\Java\\ibm_sdk80",
+            "default": true
+        }
+    ],
+    "java.jdt.ls.java.home": "C:\\Program Files\\Java\\ibm_sdk80",
+    "java.compile.nullAnalysis.mode": "disabled",
+    "terminal.integrated.profiles.windows": {
+        "IBM Java 1.8": {
+            "path": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+            "args": [
+                "-NoExit",
+                "-Command",
+                "$env:JAVA_HOME='C:\\Program Files\\Java\\ibm_sdk80'; $env:Path=\"$env:JAVA_HOME\\bin;\" + $env:Path"
+            ]
+        }
+    },
+    "terminal.integrated.defaultProfile.windows": "IBM Java 1.8",
+    "[java]": {
+      "editor.formatOnSave": false
+    },
+    "java.format.settings.url": ".vscode/java-formatter.xml",
+    // put the JAR into a "dist" folder instead of the project root
+    "java.project.exportJar.targetPath": "${workspaceFolder}/output/${workspaceFolderBasename}.jar",
+    // only treat "src/" as source—nothing else is ever compiled
+    "java.project.sourcePaths": ["src"],
+    // Not official supported by settings.json, but used by the Java Extension Pack
+    // You can ignore the problem: unrecognized Configuration Setting
+    "java.format.settings.comment.formatBlockComments": false,
+    "java.project.exportJar.mainClass": "com.coe.DBConn.DBConnTestV2",
+    "java.project.exportJar.excludes": [
+        "${workspaceFolder}/output/**",
+        "${workspaceFolder}/_Client Directory Structure/**"
+    ]
+}

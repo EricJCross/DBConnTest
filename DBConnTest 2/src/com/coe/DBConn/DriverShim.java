@@ -1,4 +1,4 @@
-package ibm;
+package com.coe.DBConn;
 
 import java.sql.*;
 import java.util.Properties;

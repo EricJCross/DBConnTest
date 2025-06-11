@@ -1,0 +1,44 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+/*
+		{
+			"type": "java (build)",
+			"paths": [
+				"${workspace}/com"
+			],
+			"isFullBuild": true,
+			"group": "build",
+			"problemMatcher": [],
+			"label": "java (build): Build Workspace",
+			"detail": "$(tools) Build all the Java projects in workspace."
+		},
+		{
+			"type": "java (buildArtifact)",
+			"mainClass": "com.coe.cust.event.Syncrofy_Event_Processor",
+			//"targetPath": "${workspaceFolder}/${workspaceFolderBasename}.jar",
+			// 1) Write the new JAR into 'output/' instead of the project root
+      "targetPath": "${workspaceFolder}/output/${workspaceFolderBasename}.jar",
+			// 2) Only include your compiled classes + your project dependencies,
+      //    then explicitly exclude any JAR in the output folder.
+			"elements": [
+				"${compileOutput}",                                       // the .class files
+				//"!${compileOutput}/output/${workspaceFolderBasename}.jar",  // 
+				"${dependencies}",                                        // refernced libraries
+      	"!output/**",                          // exclude everything under output/
+				"!_Client Directory Structure/**"      // exclude everything under _Client Directory Structure/
+			],
+			"problemMatcher": [],
+			"label": "java (buildArtifact): syncrofy_mft_event_handler"
+		},
+		
+	],
+	  // Only treat "src" as source; ignore everything else
+  "java.project.sourcePaths": ["com"],
+  // And you can still hide folders from the Java Language Server:
+  "java.project.resourceFilters": [
+    "_Client Directory Structure",
+    "output"
+*/
+		]
+}
