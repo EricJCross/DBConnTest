@@ -70,6 +70,5 @@ java -jar DBConnTestV2.jar --help
 - **Original Source:** [afuruk/DBConnTest](https://github.com/afuruk/DBConnTest)  
 - **Rebuilt In:** Java 8, following Pascal_Snake_Case conventions  
 
-Feel free to fork or submit issues on [GitHub](https://github.com/EricJCross/DBConnTest).
 ```
 
