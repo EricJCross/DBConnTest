@@ -81,7 +81,7 @@ public class DBConnTestV2 {
             ) {
             System.out.println("\nHelp:");
             System.out.println("\tIf you omit the property file path, it will look for 'database.properties' next to the JAR.");
-            System.out.println("\tIf no property file is found, a default 'database.properties' will be created for you to fill in.");
+            System.out.println("\tIf no property file is found, a new file will be created for you based on questions asked.");
             System.out.println("\nUsage:");
             System.out.println("\tjava -jar DBConnTestV2");
             System.out.println("\tjava -jar DBConnTestV2 [path/to/database.properties]");
