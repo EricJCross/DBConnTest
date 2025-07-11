@@ -125,13 +125,14 @@ public class DBConnTestV2 {
             System.out.println("\t" + this.Propertyfile + " found. Reading properties\n\n");
             //properties.load(inStream);
             Load_Or_Prompt_Properties();
+
         } catch (Exception ex5) {
             System.out.println("\t" + this.Propertyfile + " not found. Switching to interactive mode \n\n");
             this.Need_New_Properties = true;
             // After the user enters in values, it will create a new properties file
         }
 
-
+        // Get values from property file
         this.DB_Vendor = DB_ConnTest_Properties.getProperty("DB_VENDOR");
         this.DB_Host = DB_ConnTest_Properties.getProperty("DB_HOST");
         this.DB_Port = DB_ConnTest_Properties.getProperty("DB_PORT");
@@ -158,22 +159,22 @@ public class DBConnTestV2 {
             System.out.println(" \nUsing DB vendor -> " + this.DB_Vendor + "\n");
 
 
-            this.DB_Host = prompt(this.DB_Host, "DB Host");
+            this.DB_Host = Prompt(this.DB_Host, "DB Host");
             if (!this.DB_Vendor.startsWith("DB2")) {
-                this.DB_Port = prompt(this.DB_Port, "DB Port");
+                this.DB_Port = Prompt(this.DB_Port, "DB Port");
             }
 
-            this.DB_Data = prompt(this.DB_Data, "DB Name");
-            this.DB_User = prompt(this.DB_User, "DB User");
-            this.DB_Password = prompt(this.DB_Password, "DB Password");
-            this.DB_Driver_Path = prompt(this.DB_Driver_Path, "Driver Path");
+            this.DB_Data = Prompt(this.DB_Data, "DB Name");
+            this.DB_User = Prompt(this.DB_User, "DB User");
+            this.DB_Password = Prompt(this.DB_Password, "DB Password");
+            this.DB_Driver_Path = Prompt(this.DB_Driver_Path, "Driver Path");
             if (this.SSLTLS == null) {
                 this.SSLTLS = "false";
             }
 
             if (this.SSLTLS.equals("true")) {
-                this.TrustStore_Path = prompt(this.TrustStore_Path, "Truststore path");
-                this.TrustStore_Password = prompt(this.TrustStore_Password, "Truststore password");
+                this.TrustStore_Path = Prompt(this.TrustStore_Path, "Truststore path");
+                this.TrustStore_Password = Prompt(this.TrustStore_Password, "Truststore password");
             }
 
             System.out.println();
@@ -332,8 +333,9 @@ public class DBConnTestV2 {
 
     }
 
+
     //---------------------------------------------------------------------------------------------------------------#  
-    // Function: loadOrPromptProperties  
+    // Function: Load_Or_Prompt_Properties  
     // Description: Load from disk if available; otherwise prompt interactively and set Need_New_Properties.  
     //---------------------------------------------------------------------------------------------------------------#  
     private void Load_Or_Prompt_Properties() throws IOException {
@@ -351,7 +353,7 @@ public class DBConnTestV2 {
 
 
     //---------------------------------------------------------------------------------------------------------------#
-    // Function: prompt
+    // Function: Prompt
     // Description: This method prompts the user to enter a value for a specific variable. It ensures that the value
     //              entered is not null or empty.
     // Parameters:
@@ -360,9 +362,9 @@ public class DBConnTestV2 {
     // Returns:
     //   - String: The value entered by the user.
     //---------------------------------------------------------------------------------------------------------------#
-    public String prompt(String Variable_Value, String Prompt) throws Exception {
+    public String Prompt( String Variable_Value, String Prompt_String ) throws Exception {
         while (Variable_Value == null || Variable_Value.length() == 0) {
-            System.out.print(" " + Prompt + ": ");
+            System.out.print(" " + Prompt_String + ": ");
             Variable_Value = ReadString();
         }
 
@@ -376,14 +378,15 @@ public class DBConnTestV2 {
     // Throws:
     //   - SQLException: If there is an error executing the SQL query.
     //---------------------------------------------------------------------------------------------------------------#
+    /*
     public void siVersion() throws SQLException {
         String sql = "SELECT PRODUCT_LABEL, BUILD_NUMBER FROM SI_VERSION WHERE PRODUCT_LABEL='SI'";
         System.out.println("\nQuerying build number... " + sql);
-
+    
         try (Statement SQL_Statement = this.DB_Connection.createStatement();
              ResultSet resultSet = SQL_Statement.executeQuery(sql)) {
             System.out.println("\n\tProduct Label\tBuild Number");
-
+    
             while (resultSet.next()) {
                 String productLabel = resultSet.getString("PRODUCT_LABEL");
                 String buildNumber = resultSet.getString("BUILD_NUMBER");
@@ -394,6 +397,7 @@ public class DBConnTestV2 {
             throw ex; // Rethrow the exception for higher-level handling if necessary
         }
     }
+    */
 
 
     //---------------------------------------------------------------------------------------------------------------#
@@ -496,7 +500,7 @@ public class DBConnTestV2 {
             break;
         }
 
-        try (Statement stmt = DB_Connection.createStatement(); ResultSet rs = stmt.executeQuery(dateSql)) {
+        try (Statement stmt = DB_Connection.createStatement(); ResultSet rs = stmt.executeQuery( dateSql ) ) {
             if (rs.next()) {
                 // Use getTimestamp to cover both date and time
                 java.sql.Timestamp now = rs.getTimestamp(1);
@@ -520,8 +524,7 @@ public class DBConnTestV2 {
         }
         String Comment = CommentBuilder.toString();
 
-        try {
-            PrintWriter Property_Line = new PrintWriter( this.Propertyfile, "UTF-8");
+        try ( PrintWriter Property_Line = new PrintWriter( this.Propertyfile, "UTF-8" ) ){
 
             Property_Line.println( Comment );
             Property_Line.println( this.CommentLine( "DBConnTest Properties File", Length_Comment ) );
@@ -693,8 +696,8 @@ public class DBConnTestV2 {
 
             Property_Line.close();
 
-
             System.out.println("\nYour entered values have been used to create a new " + this.Propertyfile );
+
         } catch (IOException e) {
             System.err.println("Error creating example properties file: " + e.getMessage());
             // You might choose to handle or log the exception here
